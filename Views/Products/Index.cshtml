@@ -1,0 +1,97 @@
+﻿@model IEnumerable<SystemMagazynu.Models.Product>
+
+@{
+    ViewData["Title"] = "Produkty";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Produkty</h2>
+    @if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
+    {
+        <a asp-action="Create" class="btn btn-primary">+ Dodaj produkt</a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="searchName" value="@ViewBag.SearchName"
+               class="form-control" placeholder="Szukaj po nazwie..." />
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="searchCatalog" value="@ViewBag.SearchCatalog"
+               class="form-control" placeholder="Kod katalogowy..." />
+    </div>
+    <div class="col-md-3">
+        <select name="categoryId" class="form-select" asp-items="ViewBag.Categories">
+            <option value="">-- Wszystkie kategorie --</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Szukaj</button>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Nazwa</th>
+            <th>Kod katalogowy</th>
+            <th>Kategoria</th>
+            <th>Min. stan</th>
+            <th>Status</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td><code>@product.CatalogNumber</code></td>
+                <td>@product.Category?.Name</td>
+                <td>@product.MinimumStock</td>
+                <td>
+                    @if (product.IsActive)
+                    {
+                        <span class="badge bg-success">Aktywny</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Nieaktywny</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@product.Id"
+                       class="btn btn-sm btn-info">Szczegóły</a>
+
+                    @if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@product.Id"
+                           class="btn btn-sm btn-warning">Edytuj</a>
+                    }
+                    @if (User.IsInRole("Administrator") || User.IsInRole("KierownikMagazynu"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@product.Id"
+                           class="btn btn-sm btn-danger">Usuń</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted mt-4">
+        <p>Brak produktów spełniających kryteria wyszukiwania.</p>
+    </div>
+}

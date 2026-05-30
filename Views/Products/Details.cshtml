@@ -1,0 +1,93 @@
+﻿@model SystemMagazynu.Models.Product
+
+@{
+    ViewData["Title"] = "Szczegóły produktu";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>@Model.Name</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-3">
+            <div class="card-header"><strong>Informacje o produkcie</strong></div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Kod katalogowy</dt>
+                    <dd class="col-sm-8"><code>@Model.CatalogNumber</code></dd>
+
+                    <dt class="col-sm-4">Kategoria</dt>
+                    <dd class="col-sm-8">@Model.Category?.Name</dd>
+
+                    <dt class="col-sm-4">Opis</dt>
+                    <dd class="col-sm-8">@(Model.Description ?? "—")</dd>
+
+                    <dt class="col-sm-4">Minimalny stan</dt>
+                    <dd class="col-sm-8">@Model.MinimumStock</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge bg-success">Aktywny</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Nieaktywny</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header"><strong>Stany magazynowe</strong></div>
+            <div class="card-body">
+                @if (Model.WarehouseStocks.Any())
+                {
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Magazyn</th>
+                                <th>Ilość</th>
+                                <th>Aktualizacja</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var stock in Model.WarehouseStocks)
+                            {
+                                <tr>
+                                    <td>@stock.Warehouse?.Name</td>
+                                    <td>
+                                        @if (stock.Quantity <= Model.MinimumStock)
+                                        {
+                                            <span class="text-danger fw-bold">@stock.Quantity ⚠️</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@stock.Quantity</span>
+                                        }
+                                    </td>
+                                    <td>@stock.UpdatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted">Brak stanów magazynowych.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
+{
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edytuj</a>
+}

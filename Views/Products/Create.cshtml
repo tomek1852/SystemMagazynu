@@ -1,0 +1,56 @@
+﻿@model SystemMagazynu.ViewModels.ProductViewModel
+
+@{
+    ViewData["Title"] = "Dodaj produkt";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Dodaj produkt</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CatalogNumber" class="form-label"></label>
+                <input asp-for="CatalogNumber" class="form-control" />
+                <span asp-validation-for="CatalogNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CategoryId" class="form-label"></label>
+                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                    <option value="">-- Wybierz kategorię --</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MinimumStock" class="form-label"></label>
+                <input asp-for="MinimumStock" class="form-control" type="number" min="0" />
+                <span asp-validation-for="MinimumStock" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Zapisz</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

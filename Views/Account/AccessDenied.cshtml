@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Brak dostępu";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 text-center">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h1 class="display-1 text-danger">403</h1>
+                    <h4 class="mb-3">Brak uprawnień</h4>
+                    <p class="text-muted">Nie masz uprawnień do wyświetlenia tej strony.</p>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary">
+                        Wróć do strony głównej
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
