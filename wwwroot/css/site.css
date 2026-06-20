@@ -1,31 +1,192 @@
-html {
-  font-size: 14px;
+/* ===========================================================
+   System Magazynu — motyw "Granat + Bursztyn"
+   Nakładka na Bootstrap 5. Nie zmienia znaczników.
+   =========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --brand-900: #0f2540;
+    --brand-700: #1b3a5b;
+    --brand-500: #2d5a8c;
+    --brand-300: #5b8bbd;
+    --accent:    #e8a33d;
+    --accent-600:#cf8a26;
+
+    --ink:       #1f2733;
+    --muted:     #61708a;
+    --bg:        #f3f5f9;
+    --surface:   #ffffff;
+    --line:      #e3e8f0;
+
+    --ok:        #2e7d57;
+    --warn:      #b9821a;
+    --bad:       #c0413b;
+
+    --radius:    10px;
+    --shadow-sm: 0 1px 2px rgba(15, 37, 64, .06), 0 1px 3px rgba(15, 37, 64, .08);
+    --shadow-md: 0 4px 14px rgba(15, 37, 64, .10);
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
+/* ---------- Baza ---------- */
+html { font-size: 15px; position: relative; min-height: 100%; }
+@media (min-width: 768px) { html { font-size: 16px; } }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 64px;
+    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background-color: var(--bg);
+    letter-spacing: .1px;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+h1, h2, h3, h4, h5, h6 { font-weight: 600; color: var(--brand-900); }
+h2 { letter-spacing: -.3px; }
+
+a { color: var(--brand-500); }
+a:hover { color: var(--brand-700); }
+
+/* ---------- Navbar ---------- */
+.navbar.bg-dark {
+    background: linear-gradient(180deg, var(--brand-900), var(--brand-700)) !important;
+    box-shadow: var(--shadow-md);
+    border-bottom: 3px solid var(--accent) !important;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: .2px;
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
 }
+.navbar-brand::before {
+    content: "";
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    background: var(--accent);
+    box-shadow: inset 0 0 0 3px var(--brand-900);
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, .82);
+    font-weight: 500;
+    border-radius: 6px;
+    padding-inline: .7rem;
+    transition: background-color .15s ease, color .15s ease;
+}
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus { color: #fff; background: rgba(255, 255, 255, .08); }
+
+.navbar-text { color: rgba(255, 255, 255, .8) !important; }
+.dropdown-menu { border: 1px solid var(--line); box-shadow: var(--shadow-md); border-radius: 8px; }
+.dropdown-item:active { background: var(--brand-500); }
+
+/* ---------- Przyciski ---------- */
+.btn { border-radius: 8px; font-weight: 500; }
+
+.btn-primary { background: var(--brand-500); border-color: var(--brand-500); }
+.btn-primary:hover, .btn-primary:focus { background: var(--brand-700); border-color: var(--brand-700); }
+
+.btn-secondary { background: #6b7a90; border-color: #6b7a90; }
+.btn-secondary:hover { background: #5a6b80; border-color: #5a6b80; }
+
+.btn-success { background: var(--ok); border-color: var(--ok); }
+.btn-danger  { background: var(--bad); border-color: var(--bad); }
+.btn-warning { background: var(--accent); border-color: var(--accent); color: #20160a; }
+.btn-warning:hover { background: var(--accent-600); border-color: var(--accent-600); color: #20160a; }
+.btn-info    { background: var(--brand-300); border-color: var(--brand-300); color: #0c2238; }
+
+.btn-outline-primary { color: var(--brand-500); border-color: var(--brand-500); }
+.btn-outline-primary:hover { background: var(--brand-500); border-color: var(--brand-500); color: #fff; }
+
+.btn:focus, .btn:active:focus, .form-control:focus, .form-select:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 .2rem rgba(45, 90, 140, .25);
+}
+
+/* ---------- Karty ---------- */
+.card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    background: var(--surface);
+}
+.card-header {
+    background: #fbfcfe;
+    border-bottom: 1px solid var(--line);
+    font-weight: 600;
+    color: var(--brand-900);
+}
+
+/* Kafelki statystyk na pulpicie */
+.card.text-bg-primary   { background: linear-gradient(135deg, var(--brand-700), var(--brand-500)) !important; border: none; }
+.card.text-bg-secondary { background: linear-gradient(135deg, #3a4a63, #51637f) !important; border: none; }
+.card.text-bg-success   { background: linear-gradient(135deg, #2e7d57, #379466) !important; border: none; }
+.card.text-bg-danger    { background: linear-gradient(135deg, #b23b35, #cf4a43) !important; border: none; }
+.card.text-bg-warning   { background: linear-gradient(135deg, var(--accent-600), var(--accent)) !important; border: none; color: #20160a !important; }
+.card .display-6 { font-weight: 700; }
+
+/* ---------- Tabele ---------- */
+.table {
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    vertical-align: middle;
+}
+.table > :not(caption) > * > * { padding: .7rem .9rem; }
+
+thead.table-dark th, .table-dark th {
+    background-color: var(--brand-900) !important;
+    color: #eaf1f9 !important;
+    font-weight: 600;
+    letter-spacing: .2px;
+    border-color: var(--brand-700) !important;
+}
+.table-hover > tbody > tr:hover > * { background-color: #eef3fa; }
+.table-striped > tbody > tr:nth-of-type(odd) > * { background-color: #f7f9fc; }
+.table-danger, .table-danger > * { background-color: #fbe7e6 !important; }
+
+/* ---------- Odznaki ---------- */
+.badge { font-weight: 600; padding: .4em .6em; border-radius: 6px; }
+.badge.bg-success   { background: var(--ok) !important; }
+.badge.bg-danger    { background: var(--bad) !important; }
+.badge.bg-warning   { background: var(--accent) !important; color: #20160a !important; }
+.badge.bg-secondary { background: #6b7a90 !important; }
+
+/* ---------- Formularze ---------- */
+.form-label { font-weight: 500; color: var(--brand-900); margin-bottom: .3rem; }
+.form-control, .form-select {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: .5rem .7rem;
+}
+.form-control:focus, .form-select:focus { border-color: var(--brand-300); }
+.form-text { color: var(--muted); }
+
+/* ---------- Alerty ---------- */
+.alert { border: 1px solid transparent; border-radius: var(--radius); border-left-width: 4px; }
+.alert-success { background: #e9f5ef; border-left-color: var(--ok); color: #1c5a3d; }
+.alert-danger  { background: #fbeae9; border-left-color: var(--bad); color: #8a2e29; }
+.alert-warning { background: #fcf3e2; border-left-color: var(--accent); color: #7a5410; }
+.alert-info    { background: #eaf1f8; border-left-color: var(--brand-300); color: #2a4763; }
+
+/* ---------- Paginacja ---------- */
+.page-link { color: var(--brand-500); border-color: var(--line); }
+.page-item.active .page-link { background: var(--brand-500); border-color: var(--brand-500); }
+
+/* ---------- Stopka ---------- */
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+}
+
+/* ---------- Drobne ---------- */
+code { color: var(--brand-700); background: #eef2f7; padding: .1rem .35rem; border-radius: 4px; }
+main { padding-top: .5rem; }
