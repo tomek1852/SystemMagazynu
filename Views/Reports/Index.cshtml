@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Raporty";
+}
+
+<h2 class="mb-4">Raporty</h2>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Stany magazynowe</h5>
+                <p class="card-text text-muted">Aktualne stany produktów w magazynach, z możliwością ograniczenia do pozycji poniżej minimum.</p>
+                <a asp-action="Stock" class="btn btn-primary">Otwórz</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Ruchy magazynowe</h5>
+                <p class="card-text text-muted">Przyjęcia, wydania i korekty w wybranym okresie, z filtrowaniem po magazynie i produkcie.</p>
+                <a asp-action="Movements" class="btn btn-primary">Otwórz</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Dostawy</h5>
+                <p class="card-text text-muted">Zarejestrowane dostawy w wybranym okresie wraz z wartością i liczbą pozycji.</p>
+                <a asp-action="Deliveries" class="btn btn-primary">Otwórz</a>
+            </div>
+        </div>
+    </div>
+</div>

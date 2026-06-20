@@ -52,6 +52,7 @@ namespace SystemMagazynu
             using (var scope = app.Services.CreateScope())
             {
                 await DbSeeder.SeedAsync(scope.ServiceProvider);
+                await SampleDataSeeder.SeedAsync(scope.ServiceProvider);
             }
 
             // Pipeline

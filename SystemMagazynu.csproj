@@ -20,4 +20,12 @@
 		</PackageReference>
 	</ItemGroup>
 
+	<!-- Projekt testowy jest osobnym projektem - wykluczamy jego pliki z kompilacji projektu głównego -->
+	<ItemGroup>
+		<Compile Remove="SystemMagazynu.Tests\**" />
+		<Content Remove="SystemMagazynu.Tests\**" />
+		<EmbeddedResource Remove="SystemMagazynu.Tests\**" />
+		<None Remove="SystemMagazynu.Tests\**" />
+	</ItemGroup>
+
 </Project>

@@ -1,0 +1,68 @@
+﻿@model SystemMagazynu.Models.Delivery
+
+@{
+    ViewData["Title"] = "Szczegóły dostawy";
+    decimal total = Model.DeliveryItems.Sum(i => i.Quantity * i.UnitPrice);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Dostawa @Model.DeliveryNumber</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Numer dostawy</dt>
+    <dd class="col-sm-9">@Model.DeliveryNumber</dd>
+
+    <dt class="col-sm-3">Data dostawy</dt>
+    <dd class="col-sm-9">@Model.DeliveryDate.ToString("yyyy-MM-dd")</dd>
+
+    <dt class="col-sm-3">Dostawca</dt>
+    <dd class="col-sm-9">@Model.Supplier?.Name</dd>
+
+    <dt class="col-sm-3">Magazyn</dt>
+    <dd class="col-sm-9">@Model.Warehouse?.Name</dd>
+
+    <dt class="col-sm-3">Zarejestrował</dt>
+    <dd class="col-sm-9">@Model.User?.FullName</dd>
+
+    <dt class="col-sm-3">Uwagi</dt>
+    <dd class="col-sm-9">@Model.Notes</dd>
+</dl>
+
+<h4 class="mt-4">Pozycje dostawy</h4>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Produkt</th>
+            <th>Kod katalogowy</th>
+            <th>Ilość</th>
+            <th>Cena jednostkowa</th>
+            <th>Wartość</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.DeliveryItems)
+        {
+            <tr>
+                <td>@item.Product?.Name</td>
+                <td><code>@item.Product?.CatalogNumber</code></td>
+                <td>@item.Quantity</td>
+                <td>@item.UnitPrice.ToString("0.00")</td>
+                <td>@((item.Quantity * item.UnitPrice).ToString("0.00"))</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="4" class="text-end">Razem:</th>
+            <th>@total.ToString("0.00")</th>
+        </tr>
+    </tfoot>
+</table>

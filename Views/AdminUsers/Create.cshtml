@@ -1,0 +1,60 @@
+﻿@model SystemMagazynu.ViewModels.CreateUserViewModel
+
+@{
+    ViewData["Title"] = "Dodaj użytkownika";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Dodaj użytkownika</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FirstName" class="form-label"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LastName" class="form-label"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+                <div class="form-text">Min. 8 znaków, w tym cyfra, mała i wielka litera.</div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Role" class="form-label"></label>
+                <select asp-for="Role" class="form-select" asp-items="ViewBag.Roles">
+                    <option value="">-- Wybierz rolę --</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Utwórz</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

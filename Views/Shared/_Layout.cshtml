@@ -1,9 +1,14 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@using Microsoft.AspNetCore.Identity
+@using SystemMagazynu.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
+<html lang="pl">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - SystemMagazynu</title>
+    <title>@ViewData["Title"] - System Magazynu</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -11,24 +16,85 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SystemMagazynu</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">System Magazynu</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Przełącz nawigację">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-md-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Products" asp-action="Index">Produkty</a>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">Słowniki</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Categories" asp-action="Index">Kategorie</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Warehouses" asp-action="Index">Magazyny</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Suppliers" asp-action="Index">Dostawcy</a></li>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">Operacje</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Deliveries" asp-action="Index">Dostawy</a></li>
+                                    <li><a class="dropdown-item" asp-controller="WarehouseIssues" asp-action="Index">Wydania</a></li>
+                                    <li><a class="dropdown-item" asp-controller="WarehouseStocks" asp-action="Index">Stany magazynowe</a></li>
+                                    <li><a class="dropdown-item" asp-controller="StockAlerts" asp-action="Index">Alerty</a></li>
+                                </ul>
+                            </li>
+
+                            @if (User.IsInRole("Administrator") || User.IsInRole("KierownikMagazynu"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Reports" asp-action="Index">Raporty</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="ChangeHistory" asp-action="Index">Historia</a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="AdminUsers" asp-action="Index">Użytkownicy</a>
+                                </li>
+                            }
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <span class="navbar-text me-3">
+                                    @{
+                                        var currentUser = await UserManager.GetUserAsync(User);
+                                    }
+                                    Zalogowano: <strong>@(currentUser?.FullName)</strong>
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-light btn-sm">Wyloguj</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="btn btn-outline-light btn-sm" asp-controller="Account" asp-action="Login">Zaloguj</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -42,7 +108,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - SystemMagazynu - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - System Magazynu
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

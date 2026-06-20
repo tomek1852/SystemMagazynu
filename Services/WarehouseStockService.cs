@@ -46,7 +46,8 @@ namespace SystemMagazynu.Services
         }
 
         public async Task<bool> DecreaseStockAsync(int productId, int warehouseId, int quantity,
-                                                    string userId, string? sourceDocument = null)
+                                                    string userId, string? sourceDocument = null,
+                                                    string? notes = null)
         {
             var stock = await GetOrCreateStockAsync(productId, warehouseId);
 
@@ -64,6 +65,7 @@ namespace SystemMagazynu.Services
                 Quantity = quantity,
                 MovementDate = DateTime.UtcNow,
                 SourceDocument = sourceDocument,
+                Notes = notes,
                 UserId = userId
             });
 

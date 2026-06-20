@@ -1,0 +1,42 @@
+﻿@model SystemMagazynu.Models.Supplier
+
+@{
+    ViewData["Title"] = "Usuń dostawcę";
+    var hasDeliveries = Model.Deliveries.Any();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Usuń dostawcę</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<div class="alert alert-warning">
+    Czy na pewno chcesz usunąć poniższego dostawcę?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Nazwa</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">NIP</dt>
+    <dd class="col-sm-9">@Model.NIP</dd>
+
+    <dt class="col-sm-3">Email</dt>
+    <dd class="col-sm-9">@Model.Email</dd>
+</dl>
+
+@if (hasDeliveries)
+{
+    <div class="alert alert-danger">
+        Ten dostawca ma powiązane dostawy (@Model.Deliveries.Count). Usunięcie nie będzie możliwe.
+        Zamiast tego oznacz go jako nieaktywnego.
+    </div>
+}
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <button type="submit" class="btn btn-danger" disabled="@hasDeliveries">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

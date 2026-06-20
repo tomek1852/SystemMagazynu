@@ -1,0 +1,52 @@
+﻿@model SystemMagazynu.ViewModels.StockCorrectionViewModel
+
+@{
+    ViewData["Title"] = "Korekta stanu";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Korekta stanu magazynowego</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <dl class="row">
+            <dt class="col-sm-4">Magazyn</dt>
+            <dd class="col-sm-8">@Model.WarehouseName</dd>
+
+            <dt class="col-sm-4">Produkt</dt>
+            <dd class="col-sm-8">@Model.ProductName</dd>
+
+            <dt class="col-sm-4">Obecny stan</dt>
+            <dd class="col-sm-8"><strong>@Model.CurrentQuantity</strong></dd>
+        </dl>
+
+        <form asp-action="Correct" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="WarehouseId" />
+
+            <div class="mb-3">
+                <label asp-for="NewQuantity" class="form-label"></label>
+                <input asp-for="NewQuantity" class="form-control" type="number" min="0" />
+                <span asp-validation-for="NewQuantity" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Notes" class="form-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Notes" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Zapisz korektę</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

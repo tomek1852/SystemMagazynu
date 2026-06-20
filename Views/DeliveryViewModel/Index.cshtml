@@ -1,0 +1,76 @@
+﻿@model IEnumerable<SystemMagazynu.Models.Delivery>
+
+@{
+    ViewData["Title"] = "Dostawy";
+    bool canRegister = User.IsInRole("Administrator") || User.IsInRole("Magazynier")
+                       || User.IsInRole("KierownikMagazynu") || User.IsInRole("PracownikZakupow");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Dostawy</h2>
+    @if (canRegister)
+    {
+        <a asp-action="Create" class="btn btn-primary">+ Zarejestruj dostawę</a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="supplierId" class="form-select" asp-items="ViewBag.Suppliers">
+            <option value="">-- Wszyscy dostawcy --</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <select name="warehouseId" class="form-select" asp-items="ViewBag.Warehouses">
+            <option value="">-- Wszystkie magazyny --</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Filtruj</button>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Numer dostawy</th>
+            <th>Data</th>
+            <th>Dostawca</th>
+            <th>Magazyn</th>
+            <th>Liczba pozycji</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var delivery in Model)
+        {
+            <tr>
+                <td>@delivery.DeliveryNumber</td>
+                <td>@delivery.DeliveryDate.ToString("yyyy-MM-dd")</td>
+                <td>@delivery.Supplier?.Name</td>
+                <td>@delivery.Warehouse?.Name</td>
+                <td>@delivery.DeliveryItems.Count</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@delivery.Id"
+                       class="btn btn-sm btn-info">Szczegóły</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted mt-4">
+        <p>Brak dostaw spełniających kryteria.</p>
+    </div>
+}

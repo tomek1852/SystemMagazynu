@@ -8,7 +8,8 @@ namespace SystemMagazynu.Services
         Task IncreaseStockAsync(int productId, int warehouseId, int quantity,
                                 string userId, string? sourceDocument = null);
         Task<bool> DecreaseStockAsync(int productId, int warehouseId, int quantity,
-                                      string userId, string? sourceDocument = null);
+                                      string userId, string? sourceDocument = null,
+                                      string? notes = null);
         Task CorrectStockAsync(int productId, int warehouseId, int newQuantity,
                                string userId, string? notes = null);
     }

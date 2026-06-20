@@ -1,0 +1,41 @@
+﻿@model SystemMagazynu.Models.Category
+
+@{
+    ViewData["Title"] = "Usuń kategorię";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Usuń kategorię</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<div class="alert alert-warning">
+    Czy na pewno chcesz usunąć poniższą kategorię?
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Nazwa</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Opis</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">Liczba produktów</dt>
+    <dd class="col-sm-9">@Model.Products.Count</dd>
+</dl>
+
+@if (Model.Products.Any())
+{
+    <div class="alert alert-danger">
+        Ta kategoria ma przypisane produkty (@Model.Products.Count). Usunięcie nie będzie możliwe,
+        dopóki produkty są do niej przypisane.
+    </div>
+}
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" value="@Model.Id" />
+
+    <button type="submit" class="btn btn-danger" disabled="@(Model.Products.Any())">Usuń</button>
+    <a asp-action="Index" class="btn btn-secondary">Anuluj</a>
+</form>

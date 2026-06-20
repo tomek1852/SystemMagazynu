@@ -1,0 +1,38 @@
+﻿@model SystemMagazynu.Models.ChangeHistory
+
+@{
+    ViewData["Title"] = "Szczegóły operacji";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Szczegóły operacji</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Data</dt>
+    <dd class="col-sm-9">@Model.ChangedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+
+    <dt class="col-sm-3">Tabela</dt>
+    <dd class="col-sm-9">@Model.TableName</dd>
+
+    <dt class="col-sm-3">ID rekordu</dt>
+    <dd class="col-sm-9">@Model.RecordId</dd>
+
+    <dt class="col-sm-3">Operacja</dt>
+    <dd class="col-sm-9">@Model.OperationType</dd>
+
+    <dt class="col-sm-3">Użytkownik</dt>
+    <dd class="col-sm-9">@(Model.User?.Email ?? Model.UserId)</dd>
+</dl>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h5>Wartości przed</h5>
+        <pre class="bg-light p-3 border rounded">@ViewBag.OldFormatted</pre>
+    </div>
+    <div class="col-md-6">
+        <h5>Wartości po</h5>
+        <pre class="bg-light p-3 border rounded">@ViewBag.NewFormatted</pre>
+    </div>
+</div>

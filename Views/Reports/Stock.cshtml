@@ -1,0 +1,66 @@
+﻿@model IEnumerable<SystemMagazynu.Models.WarehouseStock>
+
+@{
+    ViewData["Title"] = "Raport: stany magazynowe";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Raport: stany magazynowe</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Raporty</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <select name="warehouseId" class="form-select" asp-items="ViewBag.Warehouses">
+            <option value="">-- Wszystkie magazyny --</option>
+        </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-center">
+        <div class="form-check">
+            <input type="checkbox" name="lowStock" value="true" class="form-check-input" id="lowStock"
+                   @(ViewBag.LowStock == true ? "checked" : "") />
+            <label class="form-check-label" for="lowStock">Tylko poniżej minimum</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Generuj</button>
+    </div>
+    <div class="col-md-3">
+        <a class="btn btn-success w-100"
+           asp-action="StockCsv"
+           asp-route-warehouseId="@ViewBag.WarehouseId"
+           asp-route-lowStock="@ViewBag.LowStock">Eksportuj CSV</a>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Magazyn</th>
+            <th>Produkt</th>
+            <th>Kod katalogowy</th>
+            <th>Kategoria</th>
+            <th>Ilość</th>
+            <th>Min. stan</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model)
+        {
+            var belowMin = s.Product != null && s.Quantity <= s.Product.MinimumStock;
+            <tr class="@(belowMin ? "table-danger" : "")">
+                <td>@s.Warehouse?.Name</td>
+                <td>@s.Product?.Name</td>
+                <td><code>@s.Product?.CatalogNumber</code></td>
+                <td>@s.Product?.Category?.Name</td>
+                <td>@s.Quantity</td>
+                <td>@s.Product?.MinimumStock</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <p class="text-muted text-center mt-4">Brak danych dla wybranych kryteriów.</p>
+}

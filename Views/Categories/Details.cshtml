@@ -1,0 +1,72 @@
+﻿@model SystemMagazynu.Models.Category
+
+@{
+    ViewData["Title"] = "Szczegóły kategorii";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Szczegóły kategorii</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Nazwa</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Opis</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">Liczba produktów</dt>
+    <dd class="col-sm-9">@Model.Products.Count</dd>
+</dl>
+
+<h4 class="mt-4">Produkty w kategorii</h4>
+
+@if (Model.Products.Any())
+{
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Nazwa</th>
+                <th>Kod katalogowy</th>
+                <th>Min. stan</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in Model.Products.OrderBy(p => p.Name))
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td><code>@product.CatalogNumber</code></td>
+                    <td>@product.MinimumStock</td>
+                    <td>
+                        @if (product.IsActive)
+                        {
+                            <span class="badge bg-success">Aktywny</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Nieaktywny</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">Brak produktów przypisanych do tej kategorii.</p>
+}
+
+<div class="mt-3">
+    @if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Edytuj</a>
+    }
+    @if (User.IsInRole("Administrator") || User.IsInRole("KierownikMagazynu"))
+    {
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Usuń</a>
+    }
+</div>

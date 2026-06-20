@@ -1,0 +1,100 @@
+﻿@model IEnumerable<SystemMagazynu.Models.ChangeHistory>
+
+@{
+    ViewData["Title"] = "Historia operacji";
+    int currentPage = ViewBag.Page;
+    int totalPages = ViewBag.TotalPages;
+
+    Func<int, string> pageLink = (p) => Url.Action("Index", new
+    {
+        tableName = ViewBag.TableName,
+        operationType = ViewBag.OperationType,
+        userId = ViewBag.UserId,
+        dateFrom = ViewBag.DateFrom,
+        dateTo = ViewBag.DateTo,
+        page = p
+    })!;
+}
+
+<h2 class="mb-3">Historia operacji</h2>
+
+<p class="text-muted">Łącznie wpisów: @ViewBag.TotalCount</p>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-2">
+        <select name="tableName" class="form-select" asp-items="ViewBag.TableNames">
+            <option value="">-- Tabela --</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="operationType" class="form-select" asp-items="ViewBag.OperationTypes">
+            <option value="">-- Operacja --</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="userId" class="form-select" asp-items="ViewBag.Users">
+            <option value="">-- Użytkownik --</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="dateFrom" value="@ViewBag.DateFrom" class="form-control" />
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="dateTo" value="@ViewBag.DateTo" class="form-control" />
+    </div>
+    <div class="col-md-1">
+        <button type="submit" class="btn btn-secondary w-100">Filtruj</button>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Data</th>
+            <th>Tabela</th>
+            <th>ID rekordu</th>
+            <th>Operacja</th>
+            <th>Użytkownik</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var entry in Model)
+        {
+            <tr>
+                <td>@entry.ChangedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@entry.TableName</td>
+                <td>@entry.RecordId</td>
+                <td>@entry.OperationType</td>
+                <td>@(entry.User?.Email ?? entry.UserId)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@entry.Id" class="btn btn-sm btn-info">Szczegóły</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted mt-4">
+        <p>Brak wpisów historii spełniających kryteria.</p>
+    </div>
+}
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                <a class="page-link" href="@pageLink(currentPage - 1)">Poprzednia</a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">Strona @currentPage z @totalPages</span>
+            </li>
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a class="page-link" href="@pageLink(currentPage + 1)">Następna</a>
+            </li>
+        </ul>
+    </nav>
+}

@@ -1,0 +1,75 @@
+﻿@model IEnumerable<SystemMagazynu.Models.Category>
+
+@{
+    ViewData["Title"] = "Kategorie";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Kategorie</h2>
+    @if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
+    {
+        <a asp-action="Create" class="btn btn-primary">+ Dodaj kategorię</a>
+    }
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="text" name="searchName" value="@ViewBag.SearchName"
+               class="form-control" placeholder="Szukaj po nazwie..." />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Szukaj</button>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Nazwa</th>
+            <th>Opis</th>
+            <th>Liczba produktów</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>@category.Description</td>
+                <td>@category.Products.Count</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@category.Id"
+                       class="btn btn-sm btn-info">Szczegóły</a>
+
+                    @if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@category.Id"
+                           class="btn btn-sm btn-warning">Edytuj</a>
+                    }
+                    @if (User.IsInRole("Administrator") || User.IsInRole("KierownikMagazynu"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@category.Id"
+                           class="btn btn-sm btn-danger">Usuń</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted mt-4">
+        <p>Brak kategorii spełniających kryteria wyszukiwania.</p>
+    </div>
+}

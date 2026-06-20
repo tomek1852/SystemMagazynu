@@ -1,0 +1,94 @@
+﻿@model SystemMagazynu.ViewModels.IssueViewModel
+
+@{
+    ViewData["Title"] = "Nowe wydanie";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Nowe wydanie towaru</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="WarehouseId" class="form-label"></label>
+                <select asp-for="WarehouseId" id="warehouseSelect" class="form-select" asp-items="ViewBag.Warehouses">
+                    <option value="">-- Wybierz magazyn --</option>
+                </select>
+                <span asp-validation-for="WarehouseId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ProductId" class="form-label"></label>
+                <select asp-for="ProductId" id="productSelect" class="form-select" asp-items="ViewBag.Products">
+                    <option value="">-- Wybierz produkt --</option>
+                </select>
+                <span asp-validation-for="ProductId" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <div class="alert alert-info py-2 mb-0" id="availabilityBox" style="display:none;">
+                    Dostępna ilość w wybranym magazynie: <strong id="availableQty">0</strong>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Quantity" class="form-label"></label>
+                <input asp-for="Quantity" class="form-control" type="number" min="1" />
+                <span asp-validation-for="Quantity" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SourceDocument" class="form-label"></label>
+                <input asp-for="SourceDocument" class="form-control" />
+                <span asp-validation-for="SourceDocument" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Notes" class="form-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Notes" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Zarejestruj wydanie</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const warehouseSelect = document.getElementById('warehouseSelect');
+        const productSelect = document.getElementById('productSelect');
+        const availabilityBox = document.getElementById('availabilityBox');
+        const availableQty = document.getElementById('availableQty');
+
+        async function refreshAvailability() {
+            const warehouseId = warehouseSelect.value;
+            const productId = productSelect.value;
+
+            if (!warehouseId || !productId) {
+                availabilityBox.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`@Url.Action("GetStock")?productId=${productId}&warehouseId=${warehouseId}`);
+                const data = await response.json();
+                availableQty.textContent = data.quantity;
+                availabilityBox.style.display = 'block';
+            } catch {
+                availabilityBox.style.display = 'none';
+            }
+        }
+
+        warehouseSelect.addEventListener('change', refreshAvailability);
+        productSelect.addEventListener('change', refreshAvailability);
+    </script>
+}

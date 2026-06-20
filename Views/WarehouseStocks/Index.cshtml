@@ -1,0 +1,126 @@
+﻿@model IEnumerable<SystemMagazynu.Models.WarehouseStock>
+
+@{
+    ViewData["Title"] = "Stany magazynowe";
+    bool canCorrect = User.IsInRole("Administrator") || User.IsInRole("KierownikMagazynu");
+}
+
+<h2 class="mb-3">Stany magazynowe</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Pozycje stanów</h6>
+                <p class="display-6 mb-0">@ViewBag.TotalPositions</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-light">
+            <div class="card-body">
+                <h6 class="card-title text-muted">Łączna ilość</h6>
+                <p class="display-6 mb-0">@ViewBag.TotalQuantity</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card @(((int)ViewBag.LowStockCount) > 0 ? "text-bg-danger" : "text-bg-light")">
+            <div class="card-body">
+                <h6 class="card-title">Pozycje poniżej minimum</h6>
+                <p class="display-6 mb-0">@ViewBag.LowStockCount</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="warehouseId" class="form-select" asp-items="ViewBag.Warehouses">
+            <option value="">-- Wszystkie magazyny --</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="productId" class="form-select" asp-items="ViewBag.Products">
+            <option value="">-- Wszystkie produkty --</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="sort" class="form-select">
+            <option value="">Sortuj: magazyn</option>
+            <option value="product" selected="@(ViewBag.Sort as string == "product")">Produkt</option>
+            <option value="qty_asc" selected="@(ViewBag.Sort as string == "qty_asc")">Ilość rosnąco</option>
+            <option value="qty_desc" selected="@(ViewBag.Sort as string == "qty_desc")">Ilość malejąco</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-center">
+        <div class="form-check">
+            <input type="checkbox" name="lowStock" value="true" class="form-check-input" id="lowStock"
+                   @(ViewBag.LowStock == true ? "checked" : "") />
+            <label class="form-check-label" for="lowStock">Tylko niski stan</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Filtruj</button>
+    </div>
+</form>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Magazyn</th>
+            <th>Produkt</th>
+            <th>Kategoria</th>
+            <th>Ilość</th>
+            <th>Min. stan</th>
+            <th>Aktualizacja</th>
+            @if (canCorrect)
+            {
+                <th>Akcje</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var stock in Model)
+        {
+            var belowMin = stock.Product != null && stock.Quantity <= stock.Product.MinimumStock;
+            <tr class="@(belowMin ? "table-danger" : "")">
+                <td>@stock.Warehouse?.Name</td>
+                <td>@stock.Product?.Name</td>
+                <td>@stock.Product?.Category?.Name</td>
+                <td>
+                    @stock.Quantity
+                    @if (belowMin)
+                    {
+                        <span class="badge bg-danger ms-1">niski</span>
+                    }
+                </td>
+                <td>@stock.Product?.MinimumStock</td>
+                <td>@stock.UpdatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                @if (canCorrect)
+                {
+                    <td>
+                        <a asp-action="Correct" asp-route-productId="@stock.ProductId" asp-route-warehouseId="@stock.WarehouseId"
+                           class="btn btn-sm btn-warning">Koryguj</a>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Any())
+{
+    <div class="text-center text-muted mt-4">
+        <p>Brak stanów magazynowych spełniających kryteria.</p>
+    </div>
+}

@@ -1,0 +1,160 @@
+﻿@model SystemMagazynu.ViewModels.DeliveryViewModel
+
+@{
+    ViewData["Title"] = "Zarejestruj dostawę";
+
+    var products = (ViewBag.Products as Microsoft.AspNetCore.Mvc.Rendering.SelectList)
+                   ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+
+    Func<int, string> productOptions = (selectedId) =>
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.Append("<option value=\"\">-- Wybierz produkt --</option>");
+        foreach (var p in products)
+        {
+            var sel = (p.Value == selectedId.ToString()) ? " selected" : "";
+            sb.Append($"<option value=\"{p.Value}\"{sel}>{System.Net.WebUtility.HtmlEncode(p.Text)}</option>");
+        }
+        return sb.ToString();
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Zarejestruj dostawę</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Powrót</a>
+</div>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="DeliveryNumber" class="form-label"></label>
+            <input asp-for="DeliveryNumber" class="form-control" />
+            <span asp-validation-for="DeliveryNumber" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="DeliveryDate" class="form-label"></label>
+            <input asp-for="DeliveryDate" class="form-control" type="date" />
+            <span asp-validation-for="DeliveryDate" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label asp-for="SupplierId" class="form-label"></label>
+            <select asp-for="SupplierId" class="form-select" asp-items="ViewBag.Suppliers">
+                <option value="">-- Wybierz dostawcę --</option>
+            </select>
+            <span asp-validation-for="SupplierId" class="text-danger small"></span>
+        </div>
+        <div class="col-md-4 mb-3">
+            <label asp-for="WarehouseId" class="form-label"></label>
+            <select asp-for="WarehouseId" class="form-select" asp-items="ViewBag.Warehouses">
+                <option value="">-- Wybierz magazyn --</option>
+            </select>
+            <span asp-validation-for="WarehouseId" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        <span asp-validation-for="Notes" class="text-danger small"></span>
+    </div>
+
+    <h4 class="mt-4">Pozycje dostawy</h4>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 45%">Produkt</th>
+                <th style="width: 20%">Ilość</th>
+                <th style="width: 25%">Cena jednostkowa</th>
+                <th style="width: 10%"></th>
+            </tr>
+        </thead>
+        <tbody id="itemsBody">
+            @for (int i = 0; i < Model.Items.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select name="Items[@i].ProductId" class="form-select" required>
+                            @Html.Raw(productOptions(Model.Items[i].ProductId))
+                        </select>
+                    </td>
+                    <td>
+                        <input name="Items[@i].Quantity" value="@Model.Items[i].Quantity"
+                               type="number" min="1" class="form-control" required />
+                    </td>
+                    <td>
+                        <input name="Items[@i].UnitPrice" value="@Model.Items[i].UnitPrice"
+                               type="number" min="0" step="0.01" class="form-control" required />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">Usuń</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-outline-primary mb-3" onclick="addRow()">+ Dodaj pozycję</button>
+
+    <div>
+        <button type="submit" class="btn btn-primary">Zapisz dostawę</button>
+    </div>
+</form>
+
+<template id="rowTemplate">
+    <tr>
+        <td>
+            <select name="Items[__INDEX__].ProductId" class="form-select" required>
+                @Html.Raw(productOptions(0))
+            </select>
+        </td>
+        <td>
+            <input name="Items[__INDEX__].Quantity" value="1" type="number" min="1" class="form-control" required />
+        </td>
+        <td>
+            <input name="Items[__INDEX__].UnitPrice" value="0" type="number" min="0" step="0.01" class="form-control" required />
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">Usuń</button>
+        </td>
+    </tr>
+</template>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function reindexRows() {
+            const rows = document.querySelectorAll('#itemsBody tr');
+            rows.forEach((tr, idx) => {
+                tr.querySelectorAll('[name]').forEach(el => {
+                    el.name = el.name.replace(/Items\[\d+\]/, 'Items[' + idx + ']');
+                });
+            });
+        }
+
+        function addRow() {
+            const tpl = document.getElementById('rowTemplate').innerHTML;
+            const currentCount = document.querySelectorAll('#itemsBody tr').length;
+            const html = tpl.replace(/__INDEX__/g, currentCount);
+            document.getElementById('itemsBody').insertAdjacentHTML('beforeend', html);
+            reindexRows();
+        }
+
+        function removeRow(btn) {
+            const rows = document.querySelectorAll('#itemsBody tr');
+            if (rows.length <= 1) {
+                alert('Dostawa musi zawierać przynajmniej jedną pozycję.');
+                return;
+            }
+            btn.closest('tr').remove();
+            reindexRows();
+        }
+    </script>
+}
