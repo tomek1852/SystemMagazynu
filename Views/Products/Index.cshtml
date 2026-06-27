@@ -1,7 +1,8 @@
-﻿@model IEnumerable<SystemMagazynu.Models.Product>
+﻿@model SystemMagazynu.ViewModels.PagedResult<SystemMagazynu.Models.Product>
 
 @{
     ViewData["Title"] = "Produkty";
+    int currentPageSize = ViewBag.PageSize ?? 5;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -21,17 +22,17 @@
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
 
-<form method="get" class="row g-2 mb-3">
+<form id="searchForm" method="get" class="row g-2 mb-3" onsubmit="return false;">
     <div class="col-md-4">
-        <input type="text" name="searchName" value="@ViewBag.SearchName"
-               class="form-control" placeholder="Szukaj po nazwie..." />
+        <input type="text" id="searchName" name="searchName" value="@ViewBag.SearchName"
+               class="form-control" placeholder="Szukaj po nazwie..." autocomplete="off" />
     </div>
     <div class="col-md-3">
-        <input type="text" name="searchCatalog" value="@ViewBag.SearchCatalog"
-               class="form-control" placeholder="Kod katalogowy..." />
+        <input type="text" id="searchCatalog" name="searchCatalog" value="@ViewBag.SearchCatalog"
+               class="form-control" placeholder="Kod katalogowy..." autocomplete="off" />
     </div>
     <div class="col-md-3">
-        <select name="categoryId" class="form-select" asp-items="ViewBag.Categories">
+        <select id="categoryId" name="categoryId" class="form-select" asp-items="ViewBag.Categories">
             <option value="">-- Wszystkie kategorie --</option>
         </select>
     </div>
@@ -40,58 +41,71 @@
     </div>
 </form>
 
-<table class="table table-striped table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Nazwa</th>
-            <th>Kod katalogowy</th>
-            <th>Kategoria</th>
-            <th>Min. stan</th>
-            <th>Status</th>
-            <th>Akcje</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var product in Model)
-        {
-            <tr>
-                <td>@product.Name</td>
-                <td><code>@product.CatalogNumber</code></td>
-                <td>@product.Category?.Name</td>
-                <td>@product.MinimumStock</td>
-                <td>
-                    @if (product.IsActive)
-                    {
-                        <span class="badge bg-success">Aktywny</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Nieaktywny</span>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@product.Id"
-                       class="btn btn-sm btn-info">Szczegóły</a>
+<div class="d-flex justify-content-end align-items-center mb-2">
+    <label for="pageSize" class="form-label mb-0 me-2 small text-muted">Na stronie:</label>
+    <select id="pageSize" class="form-select form-select-sm" style="width: auto;">
+        <option value="5" selected="@(currentPageSize == 5)">5</option>
+        <option value="10" selected="@(currentPageSize == 10)">10</option>
+        <option value="25" selected="@(currentPageSize == 25)">25</option>
+        <option value="50" selected="@(currentPageSize == 50)">50</option>
+    </select>
+</div>
 
-                    @if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
-                    {
-                        <a asp-action="Edit" asp-route-id="@product.Id"
-                           class="btn btn-sm btn-warning">Edytuj</a>
-                    }
-                    @if (User.IsInRole("Administrator") || User.IsInRole("KierownikMagazynu"))
-                    {
-                        <a asp-action="Delete" asp-route-id="@product.Id"
-                           class="btn btn-sm btn-danger">Usuń</a>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div id="productsTableContainer">
+    <partial name="_ProductsTable" model="Model" />
+</div>
 
-@if (!Model.Any())
-{
-    <div class="text-center text-muted mt-4">
-        <p>Brak produktów spełniających kryteria wyszukiwania.</p>
-    </div>
+@section Scripts {
+    <script>
+        (function () {
+            const container = document.getElementById('productsTableContainer');
+            const inputName = document.getElementById('searchName');
+            const inputCatalog = document.getElementById('searchCatalog');
+            const selectCategory = document.getElementById('categoryId');
+            const selectPageSize = document.getElementById('pageSize');
+            const baseUrl = '@Url.Action("Index")';
+
+            let debounceTimer;
+
+            function buildUrl(page) {
+                const params = new URLSearchParams();
+                if (inputName.value) params.set('searchName', inputName.value);
+                if (inputCatalog.value) params.set('searchCatalog', inputCatalog.value);
+                if (selectCategory.value) params.set('categoryId', selectCategory.value);
+                params.set('pageSize', selectPageSize.value);
+                params.set('page', page);
+                return baseUrl + '?' + params.toString();
+            }
+
+            async function loadProducts(page) {
+                try {
+                    const response = await fetch(buildUrl(page), {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    container.innerHTML = await response.text();
+                } catch {
+                    // W razie błędu sieci zostawiamy aktualną tabelę.
+                }
+            }
+
+            function onSearchInput() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => loadProducts(1), 300);
+            }
+
+            inputName.addEventListener('input', onSearchInput);
+            inputCatalog.addEventListener('input', onSearchInput);
+            selectCategory.addEventListener('change', () => loadProducts(1));
+            selectPageSize.addEventListener('change', () => loadProducts(1));
+
+            // Kliknięcia w paginację (delegacja, bo tabela jest podmieniana)
+            container.addEventListener('click', function (e) {
+                const link = e.target.closest('.page-link[data-page]');
+                if (!link) return;
+                e.preventDefault();
+                if (link.closest('.disabled')) return;
+                loadProducts(parseInt(link.dataset.page, 10));
+            });
+        })();
+    </script>
 }

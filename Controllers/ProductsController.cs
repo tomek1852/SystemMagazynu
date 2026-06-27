@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -27,8 +28,14 @@ namespace SystemMagazynu.Controllers
         }
 
         // GET: /Products
-        public async Task<IActionResult> Index(string? searchName, string? searchCatalog, int? categoryId)
+        // Przy żądaniu AJAX (nagłówek X-Requested-With) zwraca tylko tabelę (partial),
+        // dzięki czemu wyszukiwanie i stronicowanie działają bez przeładowania strony.
+        public async Task<IActionResult> Index(string? searchName, string? searchCatalog, int? categoryId, int page = 1, int pageSize = 5)
         {
+            var allowedPageSizes = new[] { 5, 10, 25, 50 };
+            if (!allowedPageSizes.Contains(pageSize))
+                pageSize = 5;
+
             var query = _db.Products
                 .Include(p => p.Category)
                 .AsQueryable();
@@ -42,14 +49,36 @@ namespace SystemMagazynu.Controllers
             if (categoryId.HasValue)
                 query = query.Where(p => p.CategoryId == categoryId);
 
-            var products = await query.OrderBy(p => p.Name).ToListAsync();
+            int totalCount = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+            if (page < 1) page = 1;
+            if (totalPages > 0 && page > totalPages) page = totalPages;
+
+            var items = await query
+                .OrderBy(p => p.Name)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var model = new PagedResult<Product>
+            {
+                Items = items,
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
 
             ViewBag.Categories = new SelectList(await _db.Categories.ToListAsync(), "Id", "Name", categoryId);
             ViewBag.SearchName = searchName;
             ViewBag.SearchCatalog = searchCatalog;
             ViewBag.CategoryId = categoryId;
+            ViewBag.PageSize = pageSize;
 
-            return View(products);
+            // Żądanie AJAX -> tylko tabela
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return PartialView("_ProductsTable", model);
+
+            return View(model);
         }
 
         // GET: /Products/Details/5

@@ -1,0 +1,84 @@
+﻿@model SystemMagazynu.ViewModels.PagedResult<SystemMagazynu.Models.Product>
+
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Nazwa</th>
+            <th>Kod katalogowy</th>
+            <th>Kategoria</th>
+            <th>Min. stan</th>
+            <th>Status</th>
+            <th>Akcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model.Items)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td><code>@product.CatalogNumber</code></td>
+                <td>@product.Category?.Name</td>
+                <td>@product.MinimumStock</td>
+                <td>
+                    @if (product.IsActive)
+                    {
+                        <span class="badge bg-success">Aktywny</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Nieaktywny</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@product.Id" class="btn btn-sm btn-info">Szczegóły</a>
+
+                    @if (User.IsInRole("Administrator") || User.IsInRole("Magazynier") || User.IsInRole("KierownikMagazynu"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-warning">Edytuj</a>
+                    }
+                    @if (User.IsInRole("Administrator") || User.IsInRole("KierownikMagazynu"))
+                    {
+                        <a asp-action="Delete" asp-route-id="@product.Id" class="btn btn-sm btn-danger">Usuń</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Items.Any())
+{
+    <div class="text-center text-muted mt-4">
+        <p>Brak produktów spełniających kryteria wyszukiwania.</p>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted small">
+            Wyświetlono @Model.Items.Count z @Model.TotalCount (strona @Model.Page z @Model.TotalPages)
+        </span>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item @(Model.HasPrevious ? "" : "disabled")">
+                        <a class="page-link" href="#" data-page="@(Model.Page - 1)">Poprzednia</a>
+                    </li>
+
+                    @for (int p = 1; p <= Model.TotalPages; p++)
+                    {
+                        <li class="page-item @(p == Model.Page ? "active" : "")">
+                            <a class="page-link" href="#" data-page="@p">@p</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(Model.HasNext ? "" : "disabled")">
+                        <a class="page-link" href="#" data-page="@(Model.Page + 1)">Następna</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+}
